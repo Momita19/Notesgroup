@@ -1,22 +1,48 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PopupForm from './Form'; // Adjust the import path if necessary
 import Styles from './Sidebar.module.css';
+import axios from 'axios'
+import { useRouter } from 'next/navigation';
 
 const Sidebar = () => {
   // Static hardcoded notes
-  const [notes, setNotes] = useState([
-    { id: 1, title: 'Note 1' },
-    { id: 2, title: 'Note 2' },
-    { id: 3, title: 'Note 3' },
-    { id: 4, title: 'Note 4' },
-  ]);
-
+  const [notes, setNotes] = useState([]);
   const [selectedNote, setSelectedNote] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const router = useRouter();
+  // const [notes, setNotes] = useState([
+  //   { id: 1, title: 'Note 1' },
+  //   { id: 2, title: 'Note 2' },
+  //   { id: 3, title: 'Note 3' },
+  //   { id: 4, title: 'Note 4' },
+  // ]);
 
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/notes')
+        console.log(response.data, "response")
+        setNotes(response.data);
+        // const group = response.groupName
+        // setNotes(response.data);
+        // console.log(notes, "notes")
+        
+      } catch (error) {
+        console.error('Error fetching notes:', error);
+      }
+    };
+
+    fetchNotes();
+  }, []);
   const handleSelectNote = (note) => {
     setSelectedNote(note);
+  };
+
+  const handleSelectGroup = (notes) => {
+    setSelectedNote(notes);
+    // Redirect to the group's page by ID
+    router.push(`/group/${notes.id}`);
   };
 
   const handleCreateNote = (noteTitle) => {
@@ -32,13 +58,13 @@ const Sidebar = () => {
     <div className={Styles.sidebar}>
       <h2>Notes</h2>
       <ul>
-        {notes.map(note => (
+        {notes.map((notes) => (
           <li 
-            key={note.id} 
-            onClick={() => handleSelectNote(note)}
-            className={Styles.note}
+            key={notes._id} 
+            onClick={() => handleSelectGroup(notes)}
+            className='text-black'
           >
-            {note.title}
+            {notes.groupName}
           </li>
         ))}
       </ul>
